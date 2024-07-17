@@ -54,7 +54,7 @@ rho(Xg == 12.5e-3 & Zg == 50e-3) = rho0*2;
 %}
 
 % Construct the Medium
-% med = Medium.Sampled(sscan, c, rho);
+med = Medium.Sampled(sscan, c, rho);
 
 % Simulate the ChannelData
 us.fs = single(us.fs); % accelerate

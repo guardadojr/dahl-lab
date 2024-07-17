@@ -76,11 +76,13 @@ bim_c0    = mod2db(b_c0   );
 
 figure;
 subplot(1,2,1);
-imagesc(us.scan, bim_naive, [-80 0] + max(bim_naive(:)));
+fig_naive = imagesc(us.scan, bim_naive, [-80 0] + max(bim_naive(:)));
 colormap grey; colorbar;
 title('Naive Delay-and-Sum');
+saveas(fig_naive,'fig_naive.png');
 
 subplot(1,2,2);
-imagesc(us.scan, bim_c0   , [-80 0] + max(bim_c0(:)   ));
+fig_c0 = imagesc(us.scan, bim_c0   , [-80 0] + max(bim_c0(:)   ));
 colormap gray; colorbar;
 title('Eikonal Delay-and-Sum');
+saveas(fig_c0,'fig_c0.png');

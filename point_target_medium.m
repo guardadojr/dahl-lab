@@ -9,7 +9,7 @@ xdc = TransducerArray.L12_3v();
 % xdc = TransducerArray('numel', 16, 'fc', 3e6, 'bw', [1.5, 4.5]*1e6, 'pitch', 1.5e3/3e6);
 seq = Sequence('type', 'FSA', 'numPulse', xdc.numel, 'c0', 1500);
 us = UltrasoundSystem('scan', sscan, 'xdc', xdc, 'seq', seq, 'fs', 10*xdc.fc);
-[us.scan.dx, us.scan.dz] = deal(us.lambda / 8);
+% [us.scan.dx, us.scan.dz] = deal(us.lambda / 2);
 
 %
 zp = 1e-3*(10:10:50);
@@ -62,8 +62,8 @@ us.fs = single(us.fs); % accelerate
 chd = greens(us, sct);
 
 % Beamform
-b_naive = DAS(us, chd);
-b_c0    = bfEikonal(us, chd, med, sscan);
+b_naive = DAS(us, chd, 'apod', 1);
+b_c0    = bfEikonal(us, chd, med, sscan, 'apod', 1);
 
 % Display the ChannelData
 figure;
@@ -76,13 +76,13 @@ bim_c0    = mod2db(b_c0   );
 
 figure;
 subplot(1,2,1);
-fig_naive = imagesc(us.scan, bim_naive, [-80 0] + max(bim_naive(:)));
-colormap grey; colorbar;
+fig_naive = imagesc(us.scan, bim_naive, [-40 0] + max(bim_naive(:)));
+colormap gray; colorbar;
 title('Naive Delay-and-Sum');
 saveas(fig_naive,'fig_naive.png');
 
 subplot(1,2,2);
-fig_c0 = imagesc(us.scan, bim_c0   , [-80 0] + max(bim_c0(:)   ));
+fig_c0 = imagesc(us.scan, bim_c0   , [-40 0] + max(bim_c0(:)   ));
 colormap gray; colorbar;
 title('Eikonal Delay-and-Sum');
 saveas(fig_c0,'fig_c0.png');

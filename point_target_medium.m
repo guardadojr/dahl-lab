@@ -68,21 +68,23 @@ b_c0    = bfEikonal(us, chd, med, sscan, 'apod', 1);
 % Display the ChannelData
 figure;
 imagesc(real(chd));
-title('Channel Data')
+title('Channel Data');
 
 % Display the images
 bim_naive = mod2db(b_naive);
 bim_c0    = mod2db(b_c0   );
 
+% Create a figure with two subplots and save as one PNG
 figure;
 subplot(1,2,1);
-fig_naive = imagesc(us.scan, bim_naive, [-40 0] + max(bim_naive(:)));
+imagesc(us.scan, bim_naive, [-40 0] + max(bim_naive(:)));
 colormap gray; colorbar;
 title('Naive Delay-and-Sum');
-saveas(fig_naive,'fig_naive.png');
 
 subplot(1,2,2);
-fig_c0 = imagesc(us.scan, bim_c0   , [-40 0] + max(bim_c0(:)   ));
+imagesc(us.scan, bim_c0   , [-40 0] + max(bim_c0(:)   ));
 colormap gray; colorbar;
 title('Eikonal Delay-and-Sum');
-saveas(fig_c0,'fig_c0.png');
+
+% Save the figure with both subplots as a single PNG file
+saveas(gcf, 'combined_figure.png');

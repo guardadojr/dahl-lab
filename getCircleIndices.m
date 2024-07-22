@@ -1,4 +1,4 @@
-function indices = getCircleIndices(centerIndex, radius, gridSize)
+function indices = getCircleIndices(centerIndex, radius, grid)
     % Validate inputs
     if numel(centerIndex) ~= 2
         error('centerIndex must be a 2-element vector for a 2D grid.');
@@ -8,7 +8,7 @@ function indices = getCircleIndices(centerIndex, radius, gridSize)
     end
     
     % Get grid dimensions
-    [numRows, numCols] = gridSize;
+    [numRows, numCols] = size(grid);
     
     % Create coordinate grids
     [rowGrid, colGrid] = ndgrid(1:numRows, 1:numCols);
@@ -31,5 +31,8 @@ function indices = getCircleIndices(centerIndex, radius, gridSize)
                                    validCols(ismember(colIndices, validCols)));
     
     % Combine row and column indices into a cell array
-    indices = {validRows, validCols};
+    cellIndices = {validRows, validCols};
+
+    %
+    indices = sub2ind(size(grid), cellIndices{1}, cellIndices{2});
 end

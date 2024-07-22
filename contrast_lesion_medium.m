@@ -5,8 +5,8 @@ end
 
 % Setup a system
 grid = ScanCartesian('x', 1e-3*linspace(-20, 20, 1+40*2^3),'z', 1e-3*linspace(-02, 58, 1+60*2^3));
-% xdc = TransducerArray.L12_3v();
-xdc = TransducerArray('numel', 16, 'fc', 3e6, 'bw', [1.5, 4.5]*1e6, 'pitch', 1.5e3/3e6);
+xdc = TransducerArray.L12_3v();
+% xdc = TransducerArray('numel', 16, 'fc', 3e6, 'bw', [1.5, 4.5]*1e6, 'pitch', 1.5e3/3e6);
 seq = Sequence('type', 'FSA', 'numPulse', xdc.numel, 'c0', 1500);
 us = UltrasoundSystem('scan', grid, 'xdc', xdc, 'seq', seq, 'fs', 10*xdc.fc);
 
@@ -37,13 +37,26 @@ N   = arrayfun(@(p) grid.("n"+p), lower(grid.order)); % size in each dimension
 ind = arrayfun(@(N) {randi(N, [S,1], 'like', rho0([]))}, N); % position indices
 as  =                rand(    [S,1], 'like', rho0([]));      % amplitude values
 
+% center point lesion assignment
+zp = 1e-3*(10:10:50);
+xp = 1e-3*(-15:7.5:15);
+[Xp, Zp] = ndgrid(xp, zp);
+centerPoints = [Xp(:), Zp(:)]; %  0*Xp(:) apply if y coordinate is applicable
+
 % assign perturbation
 rho = zeros(grid.size, 'like', rho0);
 rho(sub2ind(grid.size, ind{:})) = as;
 
+
 % add to base
 rho = rho0 + db2pow(kwargsStruct.ampdB) .* rho0 * rho;
 c = c0 * ones(grid.size);
+
+for i = 1:size(centerPoints, 1)
+    indices = getCircleIndices(, 25, rho);
+    
+    % rho() = 10 .^ ((rho()-40)/10);
+end
 
 % sample the Medium on the grid
 % args = namedargs2cell(rmfield(kwargsStruct, ["scat_per_cell","ampdB"]));

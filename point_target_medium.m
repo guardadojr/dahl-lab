@@ -33,7 +33,7 @@ z0 = rho0 * c0; % ambient impedance
 [c(Zg > 45e-3), rho(Zg > 45e-3)] = deal(1.5e3, z0/1.5e3); % isoimpedance
 
 %{ 
-Define density scatterers
+% Define density scatterers
 rho(Xg == 0 & Zg == 10e-3) = rho0*2;
 rho(Xg == 0 & Zg == 20e-3) = rho0*2; 
 rho(Xg == 0 & Zg == 30e-3) = rho0*2; 
@@ -53,38 +53,78 @@ rho(Xg == 12.5e-3 & Zg == 40e-3) = rho0*2;
 rho(Xg == 12.5e-3 & Zg == 50e-3) = rho0*2;
 %}
 
-% Construct the Medium
-med = Medium.Sampled(sscan, c, rho);
+% add the density scatterers
+pg = sscan.positions(); % 3 x Z x X x Y
+for s = 1:sct.numScat
+    % find the closest grid point
+    [~, i] = min(vecnorm(pg - sct.pos(:,s),2,1),[],'all','linear');
 
-% Simulate the ChannelData
+    % double the density at that grid point
+    rho(i) = rho(i) * 2;
+end
+
+% create a speckle perturbation distribution
+drho = 0; % speckle perturbation distribution - not actually 0 
+
+% add contrast lesions
+add_lesion = true; % whether to add
+ldB = -20; % lesion amplitude in dB
+lesion_params = 1e-3 * [0 30 5; 10 40 5]; % (x0, z0, r) mm e.g. lateral, axial, radius
+if add_lesion
+    for l = 1:size(lesion_params, 1)
+        % find the indices within the lesion
+        p = lesion_params(l,:); % (x0, z0, r)
+        i = (Xg - p(1)) .^ 2 + (Zg - p(2)).^2 < p(3);
+        
+        % modify the density perturbation distribution within the lesion
+        drho(i) = drho(i) .* db2pow(ldB); %#ok<SAGROW> % not actually 0
+    end
+end
+
+% add the perturbation
+rho = rho + drho;
+
+% Construct the Medium
+med = Medium.Sampled(sscan, c, rho, 'c0', c0, 'rho0', rho0);
+
+figure; 
+imagesc(med, us.scan, 'props', ["c","rho"]);
+
+%% Simulate the ChannelData
 us.fs = single(us.fs); % accelerate
-% chd = kspaceFirstOrder(us, med, sscan, 'CFL_max', 0.5);
-chd = greens(us, sct);
+chd = kspaceFirstOrder(us, med, sscan, 'CFL_max', 0.5);
+% chd = greens(us, sct);
 
 % Beamform
 b_naive = DAS(us, chd, 'apod', 1);
 b_c0    = bfEikonal(us, chd, med, sscan, 'apod', 1);
+b_axial = bfAxialGlobalAvg(us,chd,med,sscan);
 
 % Display the ChannelData
 figure;
-imagesc(real(chd));
+imagesc(hilbert(chd));
 title('Channel Data');
 
 % Display the images
 bim_naive = mod2db(b_naive);
 bim_c0    = mod2db(b_c0   );
+bim_axial = mod2db(b_axial);
 
 % Create a figure with two subplots and save as one PNG
 figure;
-subplot(1,2,1);
 imagesc(us.scan, bim_naive, [-40 0] + max(bim_naive(:)));
 colormap gray; colorbar;
 title('Naive Delay-and-Sum');
 
-subplot(1,2,2);
+figure;
 imagesc(us.scan, bim_c0   , [-40 0] + max(bim_c0(:)   ));
 colormap gray; colorbar;
 title('Eikonal Delay-and-Sum');
+
+figure;
+imagesc(us.scan, bim_axial   , [-40 0] + max(bim_axial(:)   ));
+colormap gray; colorbar;
+title('AGA Delay-and-Sum');
 
 % Save the figure with both subplots as a single PNG file
 saveas(gcf, 'combined_figure.png');

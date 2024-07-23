@@ -63,6 +63,7 @@ for s = 1:sct.numScat
     rho(i) = rho(i) * 2;
 end
 
+%{
 % create a speckle perturbation distribution
 drho = 0; % speckle perturbation distribution - not actually 0 
 
@@ -83,6 +84,8 @@ end
 
 % add the perturbation
 rho = rho + drho;
+
+%}
 
 % Construct the Medium
 med = Medium.Sampled(sscan, c, rho, 'c0', c0, 'rho0', rho0);
@@ -126,5 +129,5 @@ imagesc(us.scan, bim_axial   , [-40 0] + max(bim_axial(:)   ));
 colormap gray; colorbar;
 title('AGA Delay-and-Sum');
 
-% Save the figure with both subplots as a single PNG file
-saveas(gcf, 'combined_figure.png');
+% Save workspace
+save('point_target_medium');

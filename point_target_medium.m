@@ -95,7 +95,7 @@ imagesc(med, us.scan, 'props', ["c","rho"]);
 
 %% Simulate the ChannelData
 us.fs = single(us.fs); % accelerate
-chd = kspaceFirstOrder(us, med, sscan, 'CFL_max', 0.5);
+chd = kspaceFirstOrder(us, med, sscan, 'CFL_max', 0.3);
 % chd = greens(us, sct);
 
 % Beamform
@@ -117,17 +117,17 @@ bim_axial = mod2db(b_axial);
 figure;
 imagesc(us.scan, bim_naive, [-40 0] + max(bim_naive(:)));
 colormap gray; colorbar;
-title('Naive Delay-and-Sum');
+title('Naive Delay-and-Sum Point Targets');
 
 figure;
 imagesc(us.scan, bim_c0   , [-40 0] + max(bim_c0(:)   ));
 colormap gray; colorbar;
-title('Eikonal Delay-and-Sum');
+title('Eikonal Delay-and-Sum Point Targets');
 
 figure;
 imagesc(us.scan, bim_axial   , [-40 0] + max(bim_axial(:)   ));
 colormap gray; colorbar;
-title('AGA Delay-and-Sum');
+title('AGA Delay-and-Sum Point Targets');
 
 % Save workspace
 save('point_target_medium');

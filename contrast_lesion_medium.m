@@ -87,8 +87,6 @@ med = Medium.Sampled(grid, c, rho, 'c0',c0, 'rho0',rho0);
 figure; 
 imagesc(med, us.scan, 'props', ["c","rho"]);
 
-%%
-
 % Simulate the ChannelData
 us.fs = single(us.fs); % accelerate
 chd = kspaceFirstOrder(us, med, grid, 'CFL_max', 0.3); % CLF_max lower val to 0.25
@@ -107,19 +105,19 @@ figure;
 bim_c0    = mod2db(b_c0   );
 imagesc(us.scan, bim_c0   , [-40 0] + max(bim_c0(:)   ));
 colormap gray; colorbar;
-title('Eikonal Delay-and-Sum');
+title('Eikonal Delay-and-Sum Contrast Lesions');
 
 figure;
 bim_c0    = mod2db(b_axial   );
 imagesc(us.scan, bim_c0   , [-40 0] + max(bim_c0(:)   ));
 colormap gray; colorbar;
-title('AGA Delay-and-Sum');
+title('AGA Delay-and-Sum Contrast Lesions');
 
 figure;
 bim_c0    = mod2db(b_naive   );
 imagesc(us.scan, bim_c0   , [-40 0] + max(bim_c0(:)   ));
 colormap gray; colorbar;
-title('Naive Delay-and-Sum');
+title('Naive Delay-and-Sum Contrast Lesions');
 
 % Save workspace
 save('contrast_lesion_medium');

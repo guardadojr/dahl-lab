@@ -93,6 +93,13 @@ chd = kspaceFirstOrder(us, med, grid, 'CFL_max', 0.3); % CLF_max lower val to 0.
 % sct = Scatterers('pos', [0;0;30e-3], 'c0', us.seq.c0); % define a point target
 % chd = greens(us, sct);
 
+% cast to gpu array to circumnavigate ram clutter
+chd = gpuArray(chd);
+
+% convert chd to complex
+chd = hilbert(chd);
+
+% run beamformers
 b_naive = DAS(us,chd);
 b_c0    = bfEikonal(us, chd, med, grid);
 b_axial = bfAxialGlobalAvg(us,chd,med,grid);
